@@ -1,9 +1,9 @@
 package com.teste.primeiro_exemplo.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,23 +29,34 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public Produto adicionar(@RequestBody Produto produto) {
-        return produtoService.adicionar(produto);
+    public ResponseEntity<Produto> adicionar(@RequestBody Produto produto) {
+        Produto produtoCriado = produtoService.adicionar(produto);
+
+        return ResponseEntity.status(201).body(produtoCriado);
     }
 
     @GetMapping("/{id}")
-    public Optional<Produto> obterPorId(@PathVariable Integer id) {
+    public Produto obterPorId(@PathVariable Integer id) {
         return produtoService.obterPorId(id);
     }
 
     @DeleteMapping("/{id}")
-    public String deletar(@PathVariable Integer id) {
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         produtoService.deletar(id);
-        return "Produto com id: " + id + " foi deletado com sucesso.";
+
+        return ResponseEntity.noContent().build();
+    }
+
+    public ResponseEntity<Void> deletarTodos() {
+        produtoService.deletarTodos();
+
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public Produto atualizar(@PathVariable Integer id, @RequestBody Produto produto) {
-        return produtoService.atualizar(id, produto);
+    public ResponseEntity<Produto> atualizar(@PathVariable Integer id, @RequestBody Produto produto) {
+        Produto produtoAtualizado = produtoService.atualizar(id, produto);
+
+        return ResponseEntity.status(200).body(produtoAtualizado);
     }
 }

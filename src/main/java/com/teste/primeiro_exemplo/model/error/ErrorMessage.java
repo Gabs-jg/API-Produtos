@@ -1,14 +1,16 @@
 package com.teste.primeiro_exemplo.model.error;
 
 public class ErrorMessage {
+
+    //#region Aributos
     private String titulo;
 
     private Integer status;
 
     private String mensagem;
-
+    //#endregion
     
-
+    //#region Construtor, Getter e Setter
     public ErrorMessage(String titulo, Integer status, String mensagem) {
         this.titulo = titulo;
         this.status = status;
@@ -38,6 +40,6 @@ public class ErrorMessage {
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
     }
-
+    //#endregion
     
 }

@@ -1,12 +1,13 @@
 package com.teste.primeiro_exemplo.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.teste.primeiro_exemplo.model.Produto;
+import com.teste.primeiro_exemplo.model.exception.InvalidProductException;
+import com.teste.primeiro_exemplo.model.exception.ResourceNotFoundException;
 import com.teste.primeiro_exemplo.repository.ProdutoRepository;
 
 @Service
@@ -14,6 +15,12 @@ public class ProdutoService {
     
     @Autowired
     private ProdutoRepository produtoRepository;
+
+    private void validarProduto(Produto produto) {
+        if(produto == null || produto.getNome() == null || produto.getNome().isBlank() || produto.getQuantidade() < 0 || produto.getValor() < 0) {
+            throw new InvalidProductException("Dados inválidos do produto, verifique os campos.");
+        }
+    }
 
     /**
      * Método para retornar uma lista de produtos.
@@ -28,8 +35,9 @@ public class ProdutoService {
      * @param id do produto a ser buscado.
      * @return Retorna um produto pelo seu Id.
      */
-    public Optional<Produto> obterPorId(Integer id) {
-        return produtoRepository.obterPorId(id);
+    public Produto obterPorId(Integer id) {
+        return produtoRepository.obterPorId(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID inválido"));
     }
 
     /**
@@ -38,6 +46,7 @@ public class ProdutoService {
      * @return Retorna o produto que foi adicionado na lista.
      */
     public Produto adicionar(Produto produto) {
+        validarProduto(produto);
         return produtoRepository.adicionar(produto);
     }
 
@@ -46,7 +55,19 @@ public class ProdutoService {
      * @param id do produto que vai ser deletado.
      */
     public void deletar(Integer id) {
-        produtoRepository.deletar(id);
+
+        boolean deletou = produtoRepository.deletar(id);
+
+        if(!deletou) {
+            throw new ResourceNotFoundException("Produto não encontrado");
+        }
+    }
+
+    /**
+     * Método que deleta todos os produtos.
+     */
+    public void deletarTodos() {
+        produtoRepository.deletarTodos();
     }
 
     /**
@@ -55,7 +76,15 @@ public class ProdutoService {
      * @return Retorna o novo produto.
      */
     public Produto atualizar(Integer id, Produto produto) {
-        produto.setId(id);
-        return produtoRepository.atualizar(produto);
+        Produto produtoEncontrado = obterPorId(id);
+
+        validarProduto(produto);
+
+        produtoEncontrado.setNome(produto.getNome());
+        produtoEncontrado.setQuantidade(produto.getQuantidade());
+        produtoEncontrado.setValor(produto.getValor());
+        produtoEncontrado.setObservacao(produto.getObservacao());
+
+        return produtoEncontrado;
     }
 }

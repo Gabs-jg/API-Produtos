@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.teste.primeiro_exemplo.model.Produto;
-import com.teste.primeiro_exemplo.model.exception.ResourceNotFoundException;
+
 
 @Repository
 public class ProdutoRepository {
@@ -20,17 +20,17 @@ public class ProdutoRepository {
      * @return Lista de produtos.
      */
     public List<Produto> obterTodos() {
-        return produtos;
+        return new ArrayList<>(produtos);
     }
 
     /**
      * Método que retorna um produto pelo id.
      * @param Id do produto.
-     * @return Retorna um produto caso seja encontrado ou null caso não seja encontrado.
+     * @return Retorna um Optional contendo produto caso seja encontrado.
      */
-    public Optional<Produto> obterPorId(Integer Id) {
+    public Optional<Produto> obterPorId(Integer id) {
         return produtos.stream()
-        .filter(produto -> produto.getId() == Id)
+        .filter(produto -> produto.getId().equals(id))
         .findFirst();
     }
 
@@ -50,27 +50,23 @@ public class ProdutoRepository {
     /**
      * Método que deleta um produto a partir do Id.
      * @param id do produto que irá ser deletado.
+     * @return Retorna true caso o produto for deletado ou retorna falso se o produto não for deletado
      */
-    public void deletar(Integer id) {
-        produtos.removeIf(produto -> produto.getId() == id);
+    public boolean deletar(Integer id) {
+        return produtos.removeIf(produto -> produto.getId().equals(id));
     }
 
     /**
-     * Método que atualiza o produto na lista.
-     * @param produto que será atualizado.
-     * @return Retorna o produto após atualizar a lista.
+     * Método que deleta todos os produtos.
      */
-    public Produto atualizar(Produto produto) {
-        Optional<Produto> produtoEncontrado = obterPorId(produto.getId());
-
-        if(produtoEncontrado.isEmpty()) {
-            throw new ResourceNotFoundException("Produto não encontrado.");
-        }
-
-        deletar(produto.getId());
-        
-        produtos.add(produto);
-
-        return produto;
+    public void deletarTodos() {
+        produtos.clear();
     }
+
+    // TRANSFORMAR EM INTERFACE
+    // MUDAR NOME DOS MÉTODOS
+    // CRIAR MÉTODO ATUALIZAR PARCIAL
+    // CRIAR MÉTODO BUSCAR POR NOME
+    // CRIAR MÉTODO BUSCAR PRODUTOS COM VALOR MAIOR QUE
+    // CRIAR MÉTODO BUSCAR PRODUTOS COM VALOR MENOR QUE
 }
