@@ -9,7 +9,7 @@ public class Produto {
 
     private Integer quantidade;
 
-    private double valor;
+    private Double valor;
 
     private String observacao;
     //#endregion
@@ -39,11 +39,11 @@ public class Produto {
         this.quantidade = quantidade;
     }
 
-    public double getValor() {
+    public Double getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(Double valor) {
         this.valor = valor;
     }
 

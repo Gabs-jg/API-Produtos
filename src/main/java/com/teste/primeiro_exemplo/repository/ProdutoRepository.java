@@ -1,72 +1,49 @@
 package com.teste.primeiro_exemplo.repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.teste.primeiro_exemplo.model.Produto;
 
 
 @Repository
-public class ProdutoRepository {
-    
-    private List<Produto> produtos = new ArrayList<>();
-    private Integer ultimoId = 0;
+public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
 
     /**
-     * Método para retornar uma lista de produtos.
-     * @return Lista de produtos.
-     */
-    public List<Produto> obterTodos() {
-        return new ArrayList<>(produtos);
-    }
-
-    /**
-     * Método que retorna um produto pelo id.
-     * @param Id do produto.
+     * Método que retorna um produto pelo nome.
+     * @param nome do produto.
      * @return Retorna um Optional contendo produto caso seja encontrado.
      */
-    public Optional<Produto> obterPorId(Integer id) {
-        return produtos.stream()
-        .filter(produto -> produto.getId().equals(id))
-        .findFirst();
-    }
+    public Optional<Produto> findByName(String nome);
 
     /**
-     * Método que adiciona um produto na lista.
-     * @param produto que vai ser adicionado.
-     * @return Retorna o produto que foi adicionado na lista.
+     * Método que retorna uma lista de produto com valor maior que o parâmetro.
+     * @param valor usado como parâmetro.
+     * @return Retorna uma lista de produtos que possuem valor maior que o parâmetro.
      */
-    public Produto adicionar(Produto produto) {
-        ultimoId++;
-        produto.setId(ultimoId);
-        produtos.add(produto);
-
-        return produto;
-    }
+    public List<Produto> findByValorGreaterThan(Double valor);
 
     /**
-     * Método que deleta um produto a partir do Id.
-     * @param id do produto que irá ser deletado.
-     * @return Retorna true caso o produto for deletado ou retorna falso se o produto não for deletado
+     * Métoodo que retorna uma lista de produto com valor menor que o parâmetro.
+     * @param valor usado como parâmetro
+     * @return Retorna uma lista de produtos que possuem valor menor que o parâmetro.
      */
-    public boolean deletar(Integer id) {
-        return produtos.removeIf(produto -> produto.getId().equals(id));
-    }
+    public List<Produto> findByValorLessThan(Double valor);
 
     /**
-     * Método que deleta todos os produtos.
+     * Método que retorna uma lista de produto com quantidade maior que o parâmetro.
+     * @param valor usado como parâmetro.
+     * @return Retorna uma lista de produtos que possuem quantidade maior que o parâmetro.
      */
-    public void deletarTodos() {
-        produtos.clear();
-    }
+    public List<Produto> findByQuantidadeGreaterThan(Integer quantidade);
 
-    // TRANSFORMAR EM INTERFACE
-    // MUDAR NOME DOS MÉTODOS
-    // CRIAR MÉTODO ATUALIZAR PARCIAL
-    // CRIAR MÉTODO BUSCAR POR NOME
-    // CRIAR MÉTODO BUSCAR PRODUTOS COM VALOR MAIOR QUE
-    // CRIAR MÉTODO BUSCAR PRODUTOS COM VALOR MENOR QUE
+    /**
+     * Métoodo que retorna uma lista de produto com quantidade menor que o parâmetro.
+     * @param valor usado como parâmetro
+     * @return Retorna uma lista de produtos que possuem quantidade menor que o parâmetro.
+     */
+    public List<Produto> findByQuantidadeLessThan(Integer quantidade);
 }
