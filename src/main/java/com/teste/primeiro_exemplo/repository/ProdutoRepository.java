@@ -8,42 +8,53 @@ import org.springframework.stereotype.Repository;
 
 import com.teste.primeiro_exemplo.model.Produto;
 
-
+/**
+ * Repositório responsável pela comunicação com o banco de dados
+ * para operações relacionadas à entidade Produto.
+ * 
+ * @author Gabriel Oliveira
+ * @version 1.0
+ * @since 2026
+ */
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
+    /**
+     * Busca um produto pelo nome.
+     * 
+     * @param nome Nome do produto.
+     * @return Optional contendo produto caso seja encontrado.
+     */
+    Optional<Produto> findByNome(String nome);
 
     /**
-     * Método que retorna um produto pelo nome.
-     * @param nome do produto.
-     * @return Retorna um Optional contendo produto caso seja encontrado.
+     * Retorna uma lista de produtos com valor maior que o informado.
+     * 
+     * @param valor Valor mínimo para filtro.
+     * @return Lista de produtos com valor maior que o informado.
      */
-    public Optional<Produto> findByName(String nome);
+    List<Produto> findByValorGreaterThan(Double valor);
 
     /**
-     * Método que retorna uma lista de produto com valor maior que o parâmetro.
-     * @param valor usado como parâmetro.
-     * @return Retorna uma lista de produtos que possuem valor maior que o parâmetro.
+     * Retorna uma lista de produtos com valor menor que o informado.
+     * 
+     * @param valor Valor máximo para filtro.
+     * @return Lista de produtos com valor menor que o informado.
      */
-    public List<Produto> findByValorGreaterThan(Double valor);
+    List<Produto> findByValorLessThan(Double valor);
 
     /**
-     * Métoodo que retorna uma lista de produto com valor menor que o parâmetro.
-     * @param valor usado como parâmetro
-     * @return Retorna uma lista de produtos que possuem valor menor que o parâmetro.
+     * Retorna uma lista de produtos com quantidade maior que o informado.
+     * 
+     * @param quantidade Quantidade mínima para filtro.
+     * @return Lista de produtos com quantidade maior que o informado.
      */
-    public List<Produto> findByValorLessThan(Double valor);
+    List<Produto> findByQuantidadeGreaterThan(Integer quantidade);
 
     /**
-     * Método que retorna uma lista de produto com quantidade maior que o parâmetro.
-     * @param valor usado como parâmetro.
-     * @return Retorna uma lista de produtos que possuem quantidade maior que o parâmetro.
+     * Retorna uma lista de produtos com quantidade menor que o informado.
+     * 
+     * @param quantidade Quantidade máxima para filtro.
+     * @return Lista de produtos com quantidade menor que o informado.
      */
-    public List<Produto> findByQuantidadeGreaterThan(Integer quantidade);
-
-    /**
-     * Métoodo que retorna uma lista de produto com quantidade menor que o parâmetro.
-     * @param valor usado como parâmetro
-     * @return Retorna uma lista de produtos que possuem quantidade menor que o parâmetro.
-     */
-    public List<Produto> findByQuantidadeLessThan(Integer quantidade);
+    List<Produto> findByQuantidadeLessThan(Integer quantidade);
 }

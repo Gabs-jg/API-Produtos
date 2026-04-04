@@ -9,6 +9,14 @@ import com.teste.primeiro_exemplo.model.exception.InvalidProductException;
 import com.teste.primeiro_exemplo.model.exception.ResourceNotFoundException;
 import com.teste.primeiro_exemplo.repository.ProdutoRepository;
 
+/**
+ * Serviço responsável pelas regras de negócio relacionadas a produtos.
+ * Realiza validações, operações com CRUD e consultas específicas.
+ * 
+ * @author Gabriel Oliveira
+ * @version 1.0
+ * @since 2026
+ */
 @Service
 public class ProdutoService {
     
@@ -19,30 +27,28 @@ public class ProdutoService {
     }
 
     /**
-     * Método que faz validações referente ao produto.
-     * @param produto que irá ser validado.
+     * Valida o produto pelo nome, quantidade e valor.
+     * 
+     * @param produto Produto que irá ser validado.
+     * @throws InvalidProductException Caso algum campo informado seja inválido.
      */
     private void validarProduto(Produto produto) {
         if(produto == null) {
             throw new InvalidProductException("Produto não pode ser nulo.");
         }
         
-        if(produto.getNome() == null || produto.getNome().isBlank()) {
-            throw new InvalidProductException("Nome não pode ser vazio ou nulo.");
-        }
+        validarNome(produto.getNome());
         
-        if(produto.getQuantidade() == null || produto.getQuantidade() <  0) {
-            throw new InvalidProductException("Quantidade não pode ser negativa ou nula.");
-        }
-        
-        if(produto.getValor() == null || produto.getValor() < 0) {
-            throw new InvalidProductException("Valor não pode ser nulo ou negativo.");
-        }
+        validarValor(produto.getValor());
+
+        validarQuantidade(produto.getQuantidade());
     }
 
     /**
-     * Método que valida o valor de um produto.
-     * @param valor do produto.
+     * Valida o valor de um produto.
+     * 
+     * @param valor Valor do produto.
+     * @throws InvalidProductException Caso o valor seja nulo ou negativo.
      */
     private void validarValor(Double valor) {
         if(valor == null || valor < 0) {
@@ -51,8 +57,10 @@ public class ProdutoService {
     }
 
     /**
-     * Método que valida a quantidade de um produto.
-     * @param quantidade do produto.
+     * Valida a quantidade de um produto.
+     * 
+     * @param quantidade Quantidade do produto.
+     * @throws InvalidProductException Caso a quantidade seja nula ou negativa.
      */
     private void validarQuantidade(Integer quantidade) {
         if(quantidade == null || quantidade < 0) {
@@ -61,41 +69,59 @@ public class ProdutoService {
     }
 
     /**
-     * Método para retornar uma lista de produtos.
-     * @return Retorna uma lista de produtos.
+     * Valida o nome de um produto
+     * 
+     * @param nome Nome do produto
+     * @throws InvalidProductException Caso o nome seja nulo ou vazio.
      */
-    public List<Produto> obterTodos() {
+    private void validarNome(String nome) {
+        if(nome == null || nome.isBlank()) {
+            throw new InvalidProductException("Nome não pode ser nulo ou vazio.");
+        }
+    }
+
+    /**
+     * Retorna uma lista com todos os produtos cadastrados.
+     * 
+     * @return Lista de produtos.
+     */
+    public List<Produto> listarTodos() {
         return produtoRepository.findAll();
     }
 
     /**
-     * Método que retorna um produto por Id.
-     * @param id do produto a ser buscado.
-     * @return Retorna um produto pelo seu Id.
+     * Busca um produto pelo ID.
+     * 
+     * @param id ID do produto a ser buscado.
+     * @return Produto encontrado.
+     * @throws ResourceNotFoundException Caso o id informado não existir.
      */
     public Produto buscarPorId(Integer id) {
         return produtoRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID inválido"));
+        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o ID: " + id));
     }
 
     /**
-     * Método que retorna um produto pelo nome.
-     * @param nome do produto.
-     * @return Retorna um Produto pelo seu nome.
+     * Busca um produto pelo nome.
+     * 
+     * @param nome Nome do produto.
+     * @return Produto encontrado.
+     * @throws InvalidProductException Caso o nome seja nulo ou vazio.
+     * @throws ResourceNotFoundException Caso o nome do produto não exista.
      */
     public Produto buscarPorNome(String nome) {
-        if(nome == null || nome.isBlank()) {
-            throw new InvalidProductException("Nome não pode ser vazio ou nulo.");
-        }
+        validarNome(nome);
 
-        return produtoRepository.findByName(nome)
-        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado."));
+        return produtoRepository.findByNome(nome)
+        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado para o nome: " + nome));
     }
 
     /**
-     * Método que adiciona um produto na lista.
-     * @param produto que vai ser adicionado na lista.
-     * @return Retorna o produto que foi adicionado na lista.
+     * Adiciona um novo produto.
+     * 
+     * @param produto Produto que vai ser criado.
+     * @return Produto criado.
+     * @throws InvalidProductException Caso algum campo informado seja inválido.
      */
     public Produto adicionar(Produto produto) {
         validarProduto(produto);
@@ -103,25 +129,29 @@ public class ProdutoService {
     }
 
     /**
-     * Método que deleta um produto do banco de dados.
-     * @param id do produto que vai ser deletado.
+     * Deleta um produto pelo ID.
+     * 
+     * @param id ID do produto que vai ser deletado.
+     * @throws ResourceNotFoundException Caso o id não existir.
      */
     public void deletar(Integer id) {
-        Produto p = buscarPorId(id);
-        produtoRepository.delete(p);
+        Produto produto = buscarPorId(id);
+        produtoRepository.delete(produto);
     }
 
     /**
-     * Método que deleta todos os produtos do banco de dados.
+     * Deleta todos os produtos.
      */
     public void deletarTodos() {
         produtoRepository.deleteAll();
     }
 
     /**
-     * Método que retorna uma lista de produto com valor maior que o parâmetro.
-     * @param valor usado como parâmetro.
-     * @return Retorna uma lista de produtos que possuem valor maior que o parâmetro.
+     * Retorna uma lista de produtos com valor maior que o informado.
+     * 
+     * @param valor Valor usado como parâmetro.
+     * @return Lista de produtos com valor maior que o informado.
+     * @throws InvalidProductException Caso o valor seja nulo ou negativo.
      */
     public List<Produto> listarPorValorMaiorQue(Double valor) {
         validarValor(valor);
@@ -129,9 +159,11 @@ public class ProdutoService {
     }
 
     /**
-     * Método que retorna uma lista de produto com valor menor que o parâmetro.
-     * @param valor usado como parâmetro.
-     * @return Retorna uma lista de produtos que possuem valor menor que o parâmetro.
+     * Retorna uma lista de produtos com valor menor que o informado.
+     * 
+     * @param valor Valor usado como parâmetro.
+     * @return Lista de produtos com valor menor que o informado.
+     * @throws InvalidProductException Caso o valor seja nulo ou negativo.
      */
     public List<Produto> listarPorValorMenorQue(Double valor) {
         validarValor(valor);
@@ -139,9 +171,11 @@ public class ProdutoService {
     }
 
     /**
-     * Método que retorna uma lista de produto com quantidade maior que o parâmetro.
-     * @param valor usado como parâmetro.
-     * @return Retorna uma lista de produtos que possuem quantidade maior que o parâmetro.
+     * Retorna uma lista de produtos com quantidade maior que o informado.
+     * 
+     * @param quantidade Quantidade usada como parâmetro.
+     * @return Lista de produtos com quantidade maior que o informado.
+     * @throws InvalidProductException Caso a quantidade seja nula ou negativa.
      */
     public List<Produto> listarPorQuantidadeMaiorQue(Integer quantidade) {
         validarQuantidade(quantidade);
@@ -149,9 +183,11 @@ public class ProdutoService {
     }
 
     /**
-     * Método que retorna uma lista de produto com quantidade menor que o parâmetro.
-     * @param valor usado como parâmetro.
-     * @return Retorna uma lista de produtos que possuem quantidade menor que o parâmetro.
+     * Retorna uma lista de produtos com quantidade menor que o informado.
+     * 
+     * @param quantidade Quantidade usada como parâmetro.
+     * @return Lista de produtos com quantidade menor que o informado.
+     * @throws InvalidProductException Caso a quantidade seja nula ou negativa.
      */
     public List<Produto> listarPorQuantidadeMenorQue(Integer quantidade) {
         validarQuantidade(quantidade);
@@ -159,10 +195,12 @@ public class ProdutoService {
     }
 
     /**
-     * Método que atualiza todos os campos de um produto.
-     * @param id do prduto que irá ser atualizado.
-     * @param produto que vai substituir o produto antigo.
-     * @return Retorna o novo produto.
+     * Atualiza todos os campos de um produto.
+     * 
+     * @param id Id do produto que irá ser atualizado.
+     * @param produto Produto com os novos dados que substituirão o produto existente.
+     * @return Produto atualizado.
+     * @throws ResourceNotFoundException Caso o id não existir.
      */
     public Produto atualizar(Integer id, Produto produto) {
         Produto produtoEncontrado = buscarPorId(id);
@@ -178,29 +216,33 @@ public class ProdutoService {
     }
 
     /**
-     * Método que atualiza alguns campos de um produto.
-     * @param id do produto que irá ser atualizado.
-     * @param produto que vai substituir o produto antigo.
-     * @return Retorna o novo produto.
+     * Atualiza alguns campos de um produto.
+     * 
+     * @param id Id do produto que irá ser atualizado.
+     * @param produto Produto com os novos dados que substituirão o produto existente.
+     * @return Produto atualizado.
+     * @throws ResourceNotFoundException Caso o id não existir.
+     * @throws InvalidProductException Caso algum campo informado seja inválido.
      */
     public Produto atualizarParcial(Integer id, Produto produto) {
         Produto produtoEncontrado = buscarPorId(id);
 
-        if(produto.getNome() != null) {
-            if(produto.getNome().isBlank()) {
-                throw new InvalidProductException("Nome não pode ser vazio.");
-            }
-            produtoEncontrado.setNome(produto.getNome());
+        String nome = produto.getNome();
+        if (nome != null) {
+            validarNome(nome);
+            produtoEncontrado.setNome(nome);
         }
 
-        if(produto.getValor() != null) {
-            validarValor(produto.getValor());
-            produtoEncontrado.setValor(produto.getValor());
+        Double valor = produto.getValor();
+        if(valor != null) {
+            validarValor(valor);
+            produtoEncontrado.setValor(valor);
         }
 
-        if(produto.getQuantidade() != null) {
-            validarQuantidade(produto.getQuantidade());
-            produtoEncontrado.setQuantidade(produto.getQuantidade());
+        Integer quantidade = produto.getQuantidade();
+        if(quantidade != null) {
+            validarQuantidade(quantidade);
+            produtoEncontrado.setQuantidade(quantidade);
         }
 
         if(produto.getObservacao() != null) {
